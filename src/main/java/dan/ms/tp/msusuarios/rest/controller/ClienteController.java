@@ -14,60 +14,44 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
 import dan.ms.tp.msusuarios.modelo.Cliente;
+import dan.ms.tp.msusuarios.rest.service.ClienteService;
 
 @RestController
 @RequestMapping("api/cliente")
 public class ClienteController {
     
     @Autowired
-    ClienteJpaRepository clienteRepo;
+    ClienteService clienteService;
 
     @GetMapping
     public ResponseEntity<List<Cliente>> getAllCliente() {
-        return ResponseEntity.ok().body(clienteRepo.findAll());
+        return ResponseEntity.ok().body(clienteService.getAllClientes());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Cliente>> getClienteById(@RequestParam Integer id) {
-        return ResponseEntity.ok().body(clienteRepo.findById(id));
+    public ResponseEntity<Cliente> getClienteById(@RequestParam Integer id) {
+        return ResponseEntity.ok().body(clienteService.getCliente(id));
     }
 
     @GetMapping("/{cuit}")
     public ResponseEntity<Cliente> getClienteByCuit(@RequestParam String cuit) {
-
-        return ResponseEntity.ok().body(clienteRepo.findByCuit(cuit));
+        return ResponseEntity.ok().body(clienteService.getCliente(cuit));
     }
 
     @PostMapping
     public ResponseEntity<Cliente> postCliente(@RequestBody Cliente cliente) {
-        return ResponseEntity.ok().body(clienteRepo.save(cliente));
+        // YO CAMBIARIA a void /// peiretti
+        return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(cliente, null));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> putCliente(@RequestBody Cliente nuevoCliente, @PathVariable Integer id) {
-        
-        Cliente cliente = null;
-        try {
-            cliente = clienteRepo.findById(id).orElseThrow(() -> new Exception());
-            cliente.setCuit(nuevoCliente.getCuit());
-            cliente.setHabilitadoOnline(nuevoCliente.getHabilitadoOnline());
-            cliente.setCorreoElectronico(nuevoCliente.getCorreoElectronico());
-            cliente.setMaximoCuentaCorriente(nuevoCliente.getMaximoCuentaCorriente());
-            cliente.setRazonSocial(nuevoCliente.getRazonSocial());            
-        } catch (Exception e) {
-            nuevoCliente.setId(id);
-            cliente = nuevoCliente;
-        }
-
-        return ResponseEntity.ok().body(clienteRepo.save(cliente));
+                return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(nuevoCliente, id));
     }
 
     @DeleteMapping("/{id}")
     public void deleteCliente(@PathVariable Integer id) {
-
-        clienteRepo.deleteById(id);  //Ver si le agregamos un return codigo 204?
+        clienteService.deleteCliente(id);  //Ver si le agregamos un return codigo 204? TODO
     }
 }
