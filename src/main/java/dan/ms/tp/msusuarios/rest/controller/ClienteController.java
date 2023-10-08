@@ -1,8 +1,6 @@
 package dan.ms.tp.msusuarios.rest.controller;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,7 +45,7 @@ public class ClienteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> putCliente(@RequestBody Cliente nuevoCliente, @PathVariable Integer id) {
-                return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(nuevoCliente, id));
+        return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(nuevoCliente, id));
     }
 
     @DeleteMapping("/{id}")
