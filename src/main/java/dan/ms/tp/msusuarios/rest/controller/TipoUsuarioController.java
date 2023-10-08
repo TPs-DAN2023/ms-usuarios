@@ -1,4 +1,4 @@
-package dan.ms.tp.msusuarios.rest;
+package dan.ms.tp.msusuarios.rest.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
