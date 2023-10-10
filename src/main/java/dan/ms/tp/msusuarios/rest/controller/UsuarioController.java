@@ -3,6 +3,7 @@ package dan.ms.tp.msusuarios.rest.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import dan.ms.tp.msusuarios.exception.UsuarioDuplicadoException;
+import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 import dan.ms.tp.msusuarios.rest.service.UsuarioService;
 
@@ -60,17 +64,36 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Usuario> postUsuario(@RequestBody Usuario usuario) {
-        return ResponseEntity.ok().body(usuarioService.saveOrUpdateUsuario(usuario, null));
+        try {
+            return ResponseEntity.ok().body(usuarioService.addOrUpdateUsuario(usuario, null));
+        } catch (UsuarioDuplicadoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (UsuarioNoEncontradoException e) {
+            // no deberia darse nunca. el fix a esto es dividir el add or update en dos metodos.
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> putUsuario(@RequestBody Usuario nuevoUsuario, @PathVariable Integer id) {
-        
-        return ResponseEntity.ok().body(usuarioService.saveOrUpdateUsuario(nuevoUsuario, id));
+        try {
+            return ResponseEntity.ok().body(usuarioService.addOrUpdateUsuario(nuevoUsuario, id));
+        } catch (UsuarioDuplicadoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (UsuarioNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public void deleteUsuario(@PathVariable Integer id) {
-        usuarioService.deleteUsuario(id);  //Ver si le agregamos un return codigo 204?
+        
+        try {
+            usuarioService.deleteUsuario(id);
+        } catch (UsuarioNoEncontradoException e) {
+            // TODO como devolver un response ??
+            e.printStackTrace();
+        }
     }
 }
