@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioDuplicadoException;
+import dan.ms.tp.msusuarios.exception.UsuarioNoAsociadoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 import dan.ms.tp.msusuarios.rest.service.UsuarioService;
@@ -35,22 +37,22 @@ public class UsuarioController {
     public ResponseEntity<Usuario> getUsuarioById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(usuarioService.getUsuarioById(id));
-        } catch (Exception e) {
-            // TODO: handle exception RecursoNoEncontrado
+        } catch (UsuarioNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/cliente/{id}")
     public ResponseEntity<Usuario> getUsuarioByIdCliente(@PathVariable Integer idCliente) {
-        
+        //TODO: REVISAR
         try {
             return ResponseEntity.ok().body(usuarioService.getUsuarioByCliente(idCliente));
-        } catch (Exception e) {
-            // TODO: handle exception RecursoNoEncontrado
+        } catch (UsuarioNoAsociadoException e) {
+            return ResponseEntity.notFound().build();
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.notFound().build();
     }
 
     /*ESTA NO LA ENTENDI, dice por tipo de usuario y ciente
