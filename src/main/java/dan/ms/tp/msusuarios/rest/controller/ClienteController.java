@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 import dan.ms.tp.msusuarios.rest.service.ClienteService;
 
@@ -29,12 +31,21 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> getClienteById(@RequestParam Integer id) {
-        return ResponseEntity.ok().body(clienteService.getCliente(id));
+
+        try {
+            return ResponseEntity.ok().body(clienteService.getCliente(id));
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{cuit}")
     public ResponseEntity<Cliente> getClienteByCuit(@RequestParam String cuit) {
+        try {
         return ResponseEntity.ok().body(clienteService.getCliente(cuit));
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
