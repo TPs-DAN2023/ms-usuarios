@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
+import dan.ms.tp.msusuarios.exception.ClienteDuplicadoException;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 
@@ -43,13 +44,20 @@ public class ClienteServiceImpl implements ClienteService{
   }
 
   @Override
-  public Cliente addOrUpdateCliente(Cliente cliente, Integer id) {
-    Optional<Cliente> c = clienteRepo.findById(id);
-  
-    if(!c.isPresent()){
+  public Cliente addOrUpdateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
+    ClienteDuplicadoException {
+
+    if (id == null){
+      if(clienteRepo.findById(cliente.getId()).isPresent())
+        throw new ClienteDuplicadoException(cliente.getId());
       return clienteRepo.save(cliente);
     }
 
+    Optional<Cliente> c = clienteRepo.findById(id);
+
+    if(!c.isPresent())
+      throw new ClienteNoEncontradoException(id);
+    
     Cliente viejo = c.get();
     viejo.setCorreoElectronico(cliente.getCorreoElectronico());
     viejo.setHabilitadoOnline(cliente.getHabilitadoOnline());
