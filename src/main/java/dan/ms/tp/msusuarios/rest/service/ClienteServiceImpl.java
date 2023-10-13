@@ -48,9 +48,10 @@ public class ClienteServiceImpl implements ClienteService{
     ClienteDuplicadoException {
 
     if (id == null){
-      if(clienteRepo.findById(cliente.getId()).isPresent())
-        throw new ClienteDuplicadoException(cliente.getId());
-      return clienteRepo.save(cliente);
+      // if(clienteRepo.findById(cliente.getId()).isPresent())
+      //   throw new ClienteDuplicadoException(cliente.getId());
+      clienteRepo.save(cliente);
+      return cliente;
     }
 
     Optional<Cliente> c = clienteRepo.findById(id);
