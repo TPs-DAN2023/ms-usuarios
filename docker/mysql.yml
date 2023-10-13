@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql-dan:
+    image: mysql:8.1.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: danrootpassword
+      MYSQL_DATABASE: dan
+      MYSQL_USER: danuser
+      MYSQL_PASSWORD: danpassword
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - mynetwork
+  
+  phpmyadmin-dan:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-container
+    environment:
+      PMA_HOST: mysql-dan
+      PMA_USER: danuser
+      PMA_PASSWORD: danpassword
+    ports:
+      - "8086:80"
+    depends_on:
+      - mysql-dan
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
