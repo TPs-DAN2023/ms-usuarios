@@ -10,6 +10,6 @@ import dan.ms.tp.msusuarios.modelo.Usuario;
 @Repository
 public interface UsuarioJpaRepository extends JpaRepository<Usuario,Integer>{
     
-    public Usuario findByIdCliente(Integer idCliente);
-    public List<Usuario> findAllByTipoUsuario(String tipoUsuario);
+    //public Usuario findByIdCliente(Integer idCliente);
+    //public List<Usuario> findAllByTipoUsuario(String tipoUsuario);
 }

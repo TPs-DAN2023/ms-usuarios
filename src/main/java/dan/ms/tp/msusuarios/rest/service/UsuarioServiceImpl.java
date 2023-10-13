@@ -44,8 +44,8 @@ public class UsuarioServiceImpl implements UsuarioService{
     if(!clienteRepo.findById(idCliente).isPresent())
       throw new ClienteNoEncontradoException(idCliente);
 
-    Usuario u = usuarioRepo.findByIdCliente(idCliente);
-    
+    //Usuario u = usuarioRepo.findByIdCliente(idCliente);
+    Usuario u = null;
     if(u == null) 
       throw new UsuarioNoAsociadoException(idCliente);
 
