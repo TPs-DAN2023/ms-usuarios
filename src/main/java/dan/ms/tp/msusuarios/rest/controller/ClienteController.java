@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dan.ms.tp.msusuarios.exception.ClienteDuplicadoException;
+import dan.ms.tp.msusuarios.exception.ClienteMailDuplicadoException;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 import dan.ms.tp.msusuarios.rest.service.ClienteService;
@@ -33,7 +33,6 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> getClienteById(@RequestParam Integer id) {
-
         try {
             return ResponseEntity.ok().body(clienteService.getCliente(id));
         } catch (ClienteNoEncontradoException e) {
@@ -44,7 +43,7 @@ public class ClienteController {
     @GetMapping("/{cuit}")
     public ResponseEntity<Cliente> getClienteByCuit(@RequestParam String cuit) {
         try {
-        return ResponseEntity.ok().body(clienteService.getCliente(cuit));
+            return ResponseEntity.ok().body(clienteService.getCliente(cuit));
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.notFound().build();
         }
@@ -52,31 +51,35 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<Cliente> postCliente(@RequestBody Cliente cliente) {
-        // YO CAMBIARIA a void /// peiretti
+        // YO CAMBIARIA a void /// peiretti // Yo creo que esta bueno devolverlo (? /// julito
         try {
-            return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(cliente, null));
-        } catch (ClienteDuplicadoException e){
+            return ResponseEntity.ok().body(clienteService.createCliente(cliente));
+        // } catch (ClienteDuplicadoException e){ // Actualmente es imposible esta excepción
+        //     return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (ClienteMailDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
-        } catch (ClienteNoEncontradoException e) {
-            // Esto nunca deberia pasar
-            return ResponseEntity.badRequest().build();
         }
-       
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> putCliente(@RequestBody Cliente nuevoCliente, @PathVariable Integer id) {
+    public ResponseEntity<String> putCliente(@RequestBody Cliente cliente, @PathVariable Integer id) {
         try {
-            return ResponseEntity.ok().body(clienteService.addOrUpdateCliente(nuevoCliente, id));
-        } catch (ClienteDuplicadoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+            clienteService.updateCliente(cliente, id);
+            return ResponseEntity.ok().body("El cliente "+cliente.getId()+" se actualizó exitosamente.");
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.notFound().build();
+        } catch (ClienteMailDuplicadoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCliente(@PathVariable Integer id) {
-        clienteService.deleteCliente(id);  //Ver si le agregamos un return codigo 204? TODO
+    public ResponseEntity<Void> deleteCliente(@PathVariable Integer id) {
+        try {
+            clienteService.deleteCliente(id);
+            return ResponseEntity.noContent().build();
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
-import dan.ms.tp.msusuarios.exception.ClienteDuplicadoException;
+import dan.ms.tp.msusuarios.exception.ClienteMailDuplicadoException;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 
@@ -25,7 +25,7 @@ public class ClienteServiceImpl implements ClienteService{
   @Override
   public Cliente getCliente(Integer id) throws ClienteNoEncontradoException {
     Optional<Cliente> c = clienteRepo.findById(id);
-    
+
     if(!c.isPresent()){
       throw new ClienteNoEncontradoException(id);
     }
@@ -36,44 +36,61 @@ public class ClienteServiceImpl implements ClienteService{
   @Override
   public Cliente getCliente(String cuit) throws ClienteNoEncontradoException {
 
-    Cliente c = clienteRepo.findByCuit(cuit);
+    Cliente c = clienteRepo.findClienteByCuit(cuit);
 
-    if(c == null) throw new ClienteNoEncontradoException(cuit);
-    
+    if (c == null) {
+      throw new ClienteNoEncontradoException(cuit);
+    }
+
     return c;
   }
 
   @Override
-  public Cliente addOrUpdateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
-    ClienteDuplicadoException {
+  public Cliente createCliente(Cliente cliente) throws ClienteMailDuplicadoException {
 
-    if (id == null){
-      // if(clienteRepo.findById(cliente.getId()).isPresent())
-      //   throw new ClienteDuplicadoException(cliente.getId());
-      clienteRepo.save(cliente);
-      return cliente;
+    if (esMailRepetido(cliente.getCorreoElectronico())) {
+      throw new ClienteMailDuplicadoException(cliente.getCorreoElectronico());
     }
 
-    Optional<Cliente> c = clienteRepo.findById(id);
-
-    if(!c.isPresent())
-      throw new ClienteNoEncontradoException(id);
-    
-    Cliente viejo = c.get();
-    viejo.setCorreoElectronico(cliente.getCorreoElectronico());
-    viejo.setHabilitadoOnline(cliente.getHabilitadoOnline());
-    viejo.setMaximoCuentaCorriente(cliente.getMaximoCuentaCorriente());
-    viejo.setRazonSocial(cliente.getRazonSocial());
-    viejo.setCuit(cliente.getCuit());
-
-    return clienteRepo.save(viejo);
-
+    return clienteRepo.save(cliente);
   }
 
   @Override
-  public void deleteCliente(Integer id) {
-    //si no lo encuentra lo ignora.
+  public void updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
+    ClienteMailDuplicadoException {
+
+    Optional<Cliente> c = clienteRepo.findById(id);
+
+    if (!c.isPresent()) {
+      throw new ClienteNoEncontradoException(id);
+    }
+
+    Cliente clienteViejo = c.get();
+
+    if (esMailRepetido(clienteViejo.getCorreoElectronico())) {
+      throw new ClienteMailDuplicadoException(clienteViejo.getCorreoElectronico());
+    }
+      
+    clienteViejo.setCorreoElectronico(cliente.getCorreoElectronico());
+    clienteViejo.setHabilitadoOnline(cliente.getHabilitadoOnline());
+    clienteViejo.setMaximoCuentaCorriente(cliente.getMaximoCuentaCorriente());
+    clienteViejo.setRazonSocial(cliente.getRazonSocial());
+    clienteViejo.setCuit(cliente.getCuit());
+
+    clienteRepo.save(clienteViejo);
+  }
+
+  @Override
+  public void deleteCliente(Integer id) throws ClienteNoEncontradoException {
+    if(!clienteRepo.existsById(id)) {
+      throw new ClienteNoEncontradoException(id);
+    }
+
     clienteRepo.deleteById(id);
   }
-  
+
+  // Filtra entre todos los clientes alguno que tenga mismo mail que el pasado por parámetro
+  private boolean esMailRepetido(String mail) {
+    return clienteRepo.findAll().stream().filter(c -> c.getCorreoElectronico().equals(mail)).findAny().isPresent();
+  }
 }

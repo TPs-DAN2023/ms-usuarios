@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
-import dan.ms.tp.msusuarios.exception.UsuarioDuplicadoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoAsociadoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
+import dan.ms.tp.msusuarios.exception.UsuarioUsernameDuplicadoException;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 import dan.ms.tp.msusuarios.rest.service.UsuarioService;
 
@@ -34,9 +34,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable Integer id) {
+    public ResponseEntity<Usuario> getUsuario(@PathVariable Integer id) {
         try {
-            return ResponseEntity.ok().body(usuarioService.getUsuarioById(id));
+            return ResponseEntity.ok().body(usuarioService.getUsuario(id));
         } catch (UsuarioNoEncontradoException e) {
             return ResponseEntity.notFound().build();
         }
@@ -67,35 +67,37 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<Usuario> postUsuario(@RequestBody Usuario usuario) {
         try {
-            return ResponseEntity.ok().body(usuarioService.addOrUpdateUsuario(usuario, null));
-        } catch (UsuarioDuplicadoException e) {
+            return ResponseEntity.ok().body(usuarioService.createUsuario(usuario));
+        // } catch (UsuarioDuplicadoException e){ // Actualmente es imposible esta excepción
+        //     return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (UsuarioUsernameDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
-        } catch (UsuarioNoEncontradoException e) {
-            // no deberia darse nunca. el fix a esto es dividir el add or update en dos metodos.
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> putUsuario(@RequestBody Usuario nuevoUsuario, @PathVariable Integer id) {
+    public ResponseEntity<String> putUsuario(@RequestBody Usuario usuario, @PathVariable Integer id) {
         try {
-            return ResponseEntity.ok().body(usuarioService.addOrUpdateUsuario(nuevoUsuario, id));
-        } catch (UsuarioDuplicadoException e) {
+            usuarioService.updateUsuario(usuario, id);
+            return ResponseEntity.ok().body("El usuario "+usuario.getId()+" se actualizó exitosamente.");
+        } catch (UsuarioUsernameDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         } catch (UsuarioNoEncontradoException e) {
             return ResponseEntity.notFound().build();
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
         }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUsuario(@PathVariable Integer id) {
-        
+    public ResponseEntity<Void> deleteUsuario(@PathVariable Integer id) {
         try {
             usuarioService.deleteUsuario(id);
+            return ResponseEntity.noContent().build();
         } catch (UsuarioNoEncontradoException e) {
-            // TODO como devolver un response ??
-            e.printStackTrace();
+            return ResponseEntity.notFound().build();
         }
     }
 }

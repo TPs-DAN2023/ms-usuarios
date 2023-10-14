@@ -9,7 +9,7 @@ import dan.ms.tp.msusuarios.modelo.Usuario;
 
 @Repository
 public interface UsuarioJpaRepository extends JpaRepository<Usuario,Integer>{
-    
-    //public Usuario findByIdCliente(Integer idCliente);
-    //public List<Usuario> findAllByTipoUsuario(String tipoUsuario);
+    // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation
+    // public Usuario findUsuarioByIdCliente(Integer idCliente);
+    // public List<Usuario> findDistinctUsuarioByTipoUsuarioOrderByUserNameDesc(String tipoUsuario);
 }
