@@ -13,4 +13,6 @@ public class TipoUsuario {
     @Id
     private Integer id;
     private String tipo;
+
+    
 }

@@ -67,7 +67,7 @@ public class ClienteServiceImpl implements ClienteService{
 
     Cliente clienteViejo = c.get();
 
-    if (esMailRepetido(clienteViejo.getCorreoElectronico())) {
+    if (esMailRepetido(cliente.getCorreoElectronico())) {
       throw new ClienteMailDuplicadoException(clienteViejo.getCorreoElectronico());
     }
       

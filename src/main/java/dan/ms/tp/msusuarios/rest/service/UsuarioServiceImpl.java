@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
+import dan.ms.tp.msusuarios.dao.TipoUsuarioJpaRepository;
 import dan.ms.tp.msusuarios.dao.UsuarioJpaRepository;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
-import dan.ms.tp.msusuarios.exception.UsuarioDuplicadoException;
+import dan.ms.tp.msusuarios.exception.TipoUsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
-import dan.ms.tp.msusuarios.exception.UsuarioNoAsociadoException;
+import dan.ms.tp.msusuarios.exception.UsuarioUsernameDuplicadoException;
+import dan.ms.tp.msusuarios.modelo.Cliente;
+import dan.ms.tp.msusuarios.modelo.TipoUsuario;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 
 @Service
@@ -21,6 +24,8 @@ public class UsuarioServiceImpl implements UsuarioService{
   UsuarioJpaRepository usuarioRepo;
   @Autowired
   ClienteJpaRepository clienteRepo;
+  @Autowired
+  TipoUsuarioJpaRepository tipoUsuarioRepo;
 
   @Override
   public List<Usuario> getAllUsuarios() {
@@ -28,7 +33,7 @@ public class UsuarioServiceImpl implements UsuarioService{
   }
 
   @Override
-  public Usuario getUsuarioById(Integer id) throws UsuarioNoEncontradoException {
+  public Usuario getUsuario(Integer id) throws UsuarioNoEncontradoException {
     Optional<Usuario> u = usuarioRepo.findById(id);
 
     if(!u.isPresent())
@@ -38,38 +43,42 @@ public class UsuarioServiceImpl implements UsuarioService{
   }
 
   @Override
-  public Usuario getUsuarioByCliente(Integer idCliente) throws 
-    UsuarioNoAsociadoException, ClienteNoEncontradoException {
+  public List<Usuario> getUsuariosByCliente(Integer idCliente) throws 
+    ClienteNoEncontradoException {
 
-    if(!clienteRepo.findById(idCliente).isPresent())
+    Optional<Cliente> cliente = clienteRepo.findById(idCliente);
+
+    if(!cliente.isPresent())
       throw new ClienteNoEncontradoException(idCliente);
 
-    //Usuario u = usuarioRepo.findByIdCliente(idCliente);
-    Usuario u = null;
-    if(u == null) 
-      throw new UsuarioNoAsociadoException(idCliente);
+      return cliente.get().getUsuarios();
+  }
 
-    return u;
+    @Override
+  public Usuario createUsuario(Usuario usuario) throws UsuarioUsernameDuplicadoException, ClienteNoEncontradoException {
+  
+    return usuarioRepo.save(usuario);  
   }
 
   @Override
-  public Usuario addOrUpdateUsuario(Usuario nuevoUsuario, Integer id) throws UsuarioDuplicadoException, UsuarioNoEncontradoException {
-    
-    if (id == null){
-      if(usuarioRepo.existsById(nuevoUsuario.getId()))
-        throw new UsuarioDuplicadoException(nuevoUsuario.getId());
+  public void updateUsuario(Usuario usuario, Integer id)
+      throws UsuarioUsernameDuplicadoException, UsuarioNoEncontradoException, ClienteNoEncontradoException {
+   
+        Optional<Usuario> usuarioViejo = usuarioRepo.findById(id);
 
-      return usuarioRepo.save(nuevoUsuario);
-    }
+        if (!usuarioViejo.isPresent()) throw new UsuarioNoEncontradoException(id);
 
-    // se podra hacer asi?
-    if(!usuarioRepo.existsById(id))
-      throw new UsuarioNoEncontradoException(id);
+        Usuario u = usuarioViejo.get();
 
-    return usuarioRepo.save(nuevoUsuario);
+        u.setCorreoElectronico(usuario.getCorreoElectronico());
+        u.setPassword(usuario.getPassword());
+        u.setTipoUsuario(usuario.getTipoUsuario());
+        u.setUserName(usuario.getUserName());
+
+       usuarioRepo.save(u);
 
   }
-
+  
   @Override
   public void deleteUsuario(Integer id) throws UsuarioNoEncontradoException {
     if (!usuarioRepo.existsById(id))
@@ -78,5 +87,21 @@ public class UsuarioServiceImpl implements UsuarioService{
       usuarioRepo.deleteById(id);
   }
 
+  @Override
+  public List<Usuario> getUsuariosOfTipoUsuarioByCliente(Integer tipoUsuarioId, Integer idCliente)
+      throws ClienteNoEncontradoException, TipoUsuarioNoEncontradoException {
+   
+        Optional<Cliente> cliente = clienteRepo.findById(idCliente);
+
+        if(!cliente.isPresent()) throw new ClienteNoEncontradoException(idCliente);
+
+        Optional<TipoUsuario> tipoUsuario = tipoUsuarioRepo.findById(tipoUsuarioId);
+        
+        if(!tipoUsuario.isPresent()) throw new TipoUsuarioNoEncontradoException(tipoUsuarioId);
+
+        List<Usuario> resultado = cliente.get().getUsuarios().stream().filter((u) -> u.getTipoUsuario().equals(tipoUsuario.get())).toList(); 
+
+        return resultado;
+  }
   
 }

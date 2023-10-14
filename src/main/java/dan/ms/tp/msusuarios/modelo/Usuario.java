@@ -24,10 +24,9 @@ public class Usuario {
     @Column(name = "CORREO_ELECTRONICO")
     private String correoElectronico;
     @ManyToOne
-    @JoinColumn(name = "ID_CLIENTE")
-    private Cliente cliente;
-    @ManyToOne
     @JoinColumn(name = "ID_TIPO_USUARIO")
     private TipoUsuario tipoUsuario;
+
+    
     
 }

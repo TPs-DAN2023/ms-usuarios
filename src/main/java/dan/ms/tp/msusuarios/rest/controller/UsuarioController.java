@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
-import dan.ms.tp.msusuarios.exception.UsuarioNoAsociadoException;
+import dan.ms.tp.msusuarios.exception.TipoUsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioUsernameDuplicadoException;
 import dan.ms.tp.msusuarios.modelo.Usuario;
@@ -43,26 +44,40 @@ public class UsuarioController {
     }
 
     @GetMapping("/cliente/{id}")
-    public ResponseEntity<Usuario> getUsuarioByIdCliente(@PathVariable Integer idCliente) {
-        //TODO: REVISAR
+    public ResponseEntity<List<Usuario>> getUsuariosByIdCliente(@PathVariable Integer idCliente, @RequestParam(name = "tipo", required = false) Integer idTipoUsuario) {
+        
+        if(idTipoUsuario == null) {
+            try {
+               return ResponseEntity.ok().body(usuarioService.getUsuariosByCliente(idCliente));
+             } catch (ClienteNoEncontradoException e) {
+              return ResponseEntity.notFound().build();
+             }
+        }
+        
         try {
-            return ResponseEntity.ok().body(usuarioService.getUsuarioByCliente(idCliente));
-        } catch (UsuarioNoAsociadoException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().body(usuarioService.getUsuariosOfTipoUsuarioByCliente(idTipoUsuario, idCliente));
         } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.notFound().build();
+        } catch (TipoUsuarioNoEncontradoException e) {
             return ResponseEntity.notFound().build();
         }
 
     }
 
-    /*ESTA NO LA ENTENDI, dice por tipo de usuario y ciente
+    
+    // @GetMapping("/cliente/{id}") 
+    // public ResponseEntity<List<Usuario>> getUsuariosOfTipoUsuarioByIdCliente(, @RequestParam(name = "cliente") Integer idCliente) {
 
-    @GetMapping("/{tipoUsuario}/")
-    public ResponseEntity<List<Usuario>> getAllUsuarioByTipoUsuario(@PathVariable String tipoUsuario) {
-
-        return ResponseEntity.ok().body(usuarioService.findAllByTipoUsuario(tipoUsuario));
-    }
-    */
+        // try {
+        //     return ResponseEntity.ok().body(usuarioService.getUsuariosOfTipoUsuarioByCliente(idTipoUsuario, idCliente));
+        // } catch (ClienteNoEncontradoException e) {
+        //     return ResponseEntity.notFound().build();
+        // } catch (TipoUsuarioNoEncontradoException e) {
+        //     return ResponseEntity.notFound().build();
+        // }
+           
+    // }
+    
 
     @PostMapping
     public ResponseEntity<Usuario> postUsuario(@RequestBody Usuario usuario) {
