@@ -57,26 +57,36 @@ public class UsuarioServiceImpl implements UsuarioService{
     @Override
   public Usuario createUsuario(Usuario usuario) throws UsuarioUsernameDuplicadoException, ClienteNoEncontradoException {
   
-    return usuarioRepo.save(usuario);  
+    if (esUserNameRepetido(usuario.getUserName())) {
+      throw new UsuarioUsernameDuplicadoException(usuario.getUserName());
+    }
+
+    return usuarioRepo.save(usuario);  // TODO: Validar password
   }
 
   @Override
   public void updateUsuario(Usuario usuario, Integer id)
-      throws UsuarioUsernameDuplicadoException, UsuarioNoEncontradoException, ClienteNoEncontradoException {
-   
-        Optional<Usuario> usuarioViejo = usuarioRepo.findById(id);
+  throws UsuarioUsernameDuplicadoException, UsuarioNoEncontradoException, ClienteNoEncontradoException, 
+  UsuarioUsernameDuplicadoException {
 
-        if (!usuarioViejo.isPresent()) throw new UsuarioNoEncontradoException(id);
+    Optional<Usuario> usuarioViejo = usuarioRepo.findById(id);
 
-        Usuario u = usuarioViejo.get();
+    if (!usuarioViejo.isPresent()) {
+      throw new UsuarioNoEncontradoException(id);
+    }
 
-        u.setCorreoElectronico(usuario.getCorreoElectronico());
-        u.setPassword(usuario.getPassword());
-        u.setTipoUsuario(usuario.getTipoUsuario());
-        u.setUserName(usuario.getUserName());
+    Usuario u = usuarioViejo.get();
 
-       usuarioRepo.save(u);
+    if (esUserNameRepetido(u.getUserName())) {
+      throw new UsuarioUsernameDuplicadoException(u.getUserName());
+    }
 
+    u.setCorreoElectronico(usuario.getCorreoElectronico());
+    u.setPassword(usuario.getPassword()); // TODO: Validar password
+    u.setTipoUsuario(usuario.getTipoUsuario());
+    u.setUserName(usuario.getUserName());
+
+    usuarioRepo.save(u);
   }
   
   @Override
@@ -103,5 +113,9 @@ public class UsuarioServiceImpl implements UsuarioService{
 
         return resultado;
   }
-  
+
+  // Filtra entre todos los usuarios alguno que tenga mismo username que el pasado por parámetro
+  private boolean esUserNameRepetido(String username) {
+    return usuarioRepo.findAll().stream().filter(u -> u.getUserName().equals(username)).findAny().isPresent();
+  }  
 }
