@@ -65,7 +65,7 @@ public class UsuarioServiceImpl implements UsuarioService{
   }
 
   @Override
-  public void updateUsuario(Usuario usuario, Integer id)
+  public Usuario updateUsuario(Usuario usuario, Integer id)
   throws UsuarioUsernameDuplicadoException, UsuarioNoEncontradoException, ClienteNoEncontradoException, 
   UsuarioUsernameDuplicadoException {
 
@@ -77,8 +77,10 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     Usuario u = usuarioViejo.get();
 
-    if (esUserNameRepetido(u.getUserName())) {
-      throw new UsuarioUsernameDuplicadoException(u.getUserName());
+    Boolean hasSameUserName = (usuario.getUserName() != null && usuario.getUserName().equals(u.getUserName()));
+
+    if (!hasSameUserName && esUserNameRepetido(usuario.getUserName())) {
+      throw new UsuarioUsernameDuplicadoException(usuario.getUserName());
     }
 
     u.setCorreoElectronico(usuario.getCorreoElectronico());
@@ -86,7 +88,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     u.setTipoUsuario(usuario.getTipoUsuario());
     u.setUserName(usuario.getUserName());
 
-    usuarioRepo.save(u);
+    return usuarioRepo.save(u);
   }
   
   @Override

@@ -56,7 +56,7 @@ public class ClienteServiceImpl implements ClienteService{
   }
 
   @Override
-  public void updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
+  public Cliente updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
     ClienteMailDuplicadoException {
 
     Optional<Cliente> c = clienteRepo.findById(id);
@@ -67,8 +67,10 @@ public class ClienteServiceImpl implements ClienteService{
 
     Cliente clienteViejo = c.get();
 
-    if (esMailRepetido(cliente.getCorreoElectronico())) {
-      throw new ClienteMailDuplicadoException(clienteViejo.getCorreoElectronico());
+    Boolean hasSameEmail = (cliente.getCorreoElectronico() != null && cliente.getCorreoElectronico().equals(clienteViejo.getCorreoElectronico()));
+
+    if (!hasSameEmail && esMailRepetido(cliente.getCorreoElectronico())) {
+      throw new ClienteMailDuplicadoException(cliente.getCorreoElectronico());
     }
       
     clienteViejo.setCorreoElectronico(cliente.getCorreoElectronico());
@@ -76,8 +78,9 @@ public class ClienteServiceImpl implements ClienteService{
     clienteViejo.setMaximoCuentaCorriente(cliente.getMaximoCuentaCorriente());
     clienteViejo.setRazonSocial(cliente.getRazonSocial());
     clienteViejo.setCuit(cliente.getCuit());
+    clienteViejo.setUsuarios(cliente.getUsuarios());
 
-    clienteRepo.save(clienteViejo);
+    return clienteRepo.save(clienteViejo);
   }
 
   @Override

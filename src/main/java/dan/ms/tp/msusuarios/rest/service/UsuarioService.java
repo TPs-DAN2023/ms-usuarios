@@ -15,7 +15,7 @@ public interface UsuarioService {
   List<Usuario> getUsuariosOfTipoUsuarioByCliente(Integer idTipoUsuario, Integer idCliente) throws ClienteNoEncontradoException, TipoUsuarioNoEncontradoException;
   Usuario createUsuario(Usuario usuario) throws UsuarioUsernameDuplicadoException,
   ClienteNoEncontradoException;
-  void updateUsuario(Usuario usuario, Integer id) throws UsuarioUsernameDuplicadoException, 
+  Usuario updateUsuario(Usuario usuario, Integer id) throws UsuarioUsernameDuplicadoException, 
   UsuarioNoEncontradoException, ClienteNoEncontradoException;
   void deleteUsuario(Integer id) throws UsuarioNoEncontradoException;
 }

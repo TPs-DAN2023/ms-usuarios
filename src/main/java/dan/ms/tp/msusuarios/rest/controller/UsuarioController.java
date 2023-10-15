@@ -43,7 +43,7 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/cliente/{id}")
+    @GetMapping("/cliente/{idCliente}")
     public ResponseEntity<List<Usuario>> getUsuariosByIdCliente(@PathVariable Integer idCliente, @RequestParam(name = "tipo", required = false) Integer idTipoUsuario) {
         
         if(idTipoUsuario == null) {
@@ -95,8 +95,8 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<String> putUsuario(@RequestBody Usuario usuario, @PathVariable Integer id) {
         try {
-            usuarioService.updateUsuario(usuario, id);
-            return ResponseEntity.ok().body("El usuario "+usuario.getId()+" se actualizó exitosamente.");
+            Usuario updatedUsuario = usuarioService.updateUsuario(usuario, id);
+            return ResponseEntity.ok().body("El usuario "+updatedUsuario.getId()+" se actualizó exitosamente.");
         } catch (UsuarioUsernameDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         } catch (UsuarioNoEncontradoException e) {

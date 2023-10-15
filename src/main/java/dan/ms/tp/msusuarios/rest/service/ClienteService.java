@@ -11,7 +11,7 @@ public interface ClienteService {
   Cliente getCliente(Integer id) throws ClienteNoEncontradoException;
   Cliente getCliente(String cuit) throws ClienteNoEncontradoException;
   Cliente createCliente(Cliente cliente) throws ClienteMailDuplicadoException;
-  void updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException, 
+  Cliente updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException, 
   ClienteMailDuplicadoException;
   void deleteCliente(Integer id) throws ClienteNoEncontradoException;
 }

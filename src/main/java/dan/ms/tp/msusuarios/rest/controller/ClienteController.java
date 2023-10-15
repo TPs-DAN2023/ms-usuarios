@@ -32,7 +32,7 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> getClienteById(@RequestParam Integer id) {
+    public ResponseEntity<Cliente> getClienteById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(clienteService.getCliente(id));
         } catch (ClienteNoEncontradoException e) {
@@ -40,8 +40,8 @@ public class ClienteController {
         }
     }
 
-    @GetMapping("/{cuit}")
-    public ResponseEntity<Cliente> getClienteByCuit(@RequestParam String cuit) {
+    @GetMapping("/")
+    public ResponseEntity<Cliente> getClienteByCuit(@RequestParam(name = "cuit", required = false) String cuit) {
         try {
             return ResponseEntity.ok().body(clienteService.getCliente(cuit));
         } catch (ClienteNoEncontradoException e) {
@@ -64,8 +64,8 @@ public class ClienteController {
     @PutMapping("/{id}")
     public ResponseEntity<String> putCliente(@RequestBody Cliente cliente, @PathVariable Integer id) {
         try {
-            clienteService.updateCliente(cliente, id);
-            return ResponseEntity.ok().body("El cliente "+cliente.getId()+" se actualizó exitosamente.");
+            Cliente updatedClient = clienteService.updateCliente(cliente, id);
+            return ResponseEntity.ok().body("El cliente "+updatedClient.getId()+" se actualizó exitosamente.");
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.notFound().build();
         } catch (ClienteMailDuplicadoException e) {
