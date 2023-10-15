@@ -2,6 +2,7 @@ package dan.ms.tp.msusuarios.rest.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import dan.ms.tp.msusuarios.dao.UsuarioJpaRepository;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.TipoUsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
+import dan.ms.tp.msusuarios.exception.UsuarioPasswordInvalidException;
 import dan.ms.tp.msusuarios.exception.UsuarioUsernameDuplicadoException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 import dan.ms.tp.msusuarios.modelo.TipoUsuario;
@@ -55,10 +57,14 @@ public class UsuarioServiceImpl implements UsuarioService{
   }
 
     @Override
-  public Usuario createUsuario(Usuario usuario) throws UsuarioUsernameDuplicadoException, ClienteNoEncontradoException {
+  public Usuario createUsuario(Usuario usuario) throws UsuarioUsernameDuplicadoException, ClienteNoEncontradoException, UsuarioPasswordInvalidException {
   
     if (esUserNameRepetido(usuario.getUserName())) {
       throw new UsuarioUsernameDuplicadoException(usuario.getUserName());
+    }
+
+    if(!isPasswordValid(usuario.getPassword())) {
+      throw new UsuarioPasswordInvalidException(usuario.getPassword());
     }
 
     return usuarioRepo.save(usuario);  // TODO: Validar password
@@ -67,7 +73,7 @@ public class UsuarioServiceImpl implements UsuarioService{
   @Override
   public Usuario updateUsuario(Usuario usuario, Integer id)
   throws UsuarioUsernameDuplicadoException, UsuarioNoEncontradoException, ClienteNoEncontradoException, 
-  UsuarioUsernameDuplicadoException {
+  UsuarioUsernameDuplicadoException, UsuarioPasswordInvalidException {
 
     Optional<Usuario> usuarioViejo = usuarioRepo.findById(id);
 
@@ -81,6 +87,10 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     if (!hasSameUserName && esUserNameRepetido(usuario.getUserName())) {
       throw new UsuarioUsernameDuplicadoException(usuario.getUserName());
+    }
+
+    if(!isPasswordValid(usuario.getPassword())) {
+      throw new UsuarioPasswordInvalidException(usuario.getPassword());
     }
 
     u.setCorreoElectronico(usuario.getCorreoElectronico());
@@ -120,4 +130,39 @@ public class UsuarioServiceImpl implements UsuarioService{
   private boolean esUserNameRepetido(String username) {
     return usuarioRepo.findAll().stream().filter(u -> u.getUserName().equals(username)).findAny().isPresent();
   }  
+
+
+  private boolean isPasswordValid(String password) {
+
+    if (password == null) return false;
+
+    if (password.length() < 12) return false;
+
+    Pattern searchPattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+
+    Boolean containsSpecialCharacter = searchPattern.matcher(password).find();
+
+    if(!containsSpecialCharacter) return false;
+    
+    searchPattern = Pattern.compile("[0-9]", Pattern.CASE_INSENSITIVE);
+
+    Boolean containsNumber = searchPattern.matcher(password).find();
+
+    if(!containsNumber) return false;
+
+    searchPattern = Pattern.compile("[a-z]");
+
+    Boolean containsLowerCase = searchPattern.matcher(password).find();
+
+    if(!containsLowerCase) return false;
+
+    searchPattern = Pattern.compile("[A-Z]");
+
+    Boolean containsUpperCase = searchPattern.matcher(password).find();
+
+    if(!containsUpperCase) return false;
+
+    return true;
+
+  }
 }

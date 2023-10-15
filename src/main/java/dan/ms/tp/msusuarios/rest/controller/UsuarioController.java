@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.TipoUsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.exception.UsuarioNoEncontradoException;
+import dan.ms.tp.msusuarios.exception.UsuarioPasswordInvalidException;
 import dan.ms.tp.msusuarios.exception.UsuarioUsernameDuplicadoException;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 import dan.ms.tp.msusuarios.rest.service.UsuarioService;
@@ -89,6 +90,8 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
+        } catch (UsuarioPasswordInvalidException e) {
+             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         }
     }
 
@@ -103,6 +106,8 @@ public class UsuarioController {
             return ResponseEntity.notFound().build();
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
+        } catch (UsuarioPasswordInvalidException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         }
     }
 
