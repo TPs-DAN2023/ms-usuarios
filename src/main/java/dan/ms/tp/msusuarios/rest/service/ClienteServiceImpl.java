@@ -7,15 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
+import dan.ms.tp.msusuarios.dao.UsuarioJpaRepository;
 import dan.ms.tp.msusuarios.exception.ClienteMailDuplicadoException;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
+import dan.ms.tp.msusuarios.exception.ClienteUsuariosInvalidException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
+import dan.ms.tp.msusuarios.modelo.TipoUsuario;
+import dan.ms.tp.msusuarios.modelo.Usuario;
 
 @Service
 public class ClienteServiceImpl implements ClienteService{
 
   @Autowired
   ClienteJpaRepository clienteRepo;
+
+  @Autowired
+  UsuarioJpaRepository usuarioRepo;
 
   @Override
   public List<Cliente> getAllClientes() {
@@ -46,10 +53,14 @@ public class ClienteServiceImpl implements ClienteService{
   }
 
   @Override
-  public Cliente createCliente(Cliente cliente) throws ClienteMailDuplicadoException {
+  public Cliente createCliente(Cliente cliente) throws ClienteMailDuplicadoException, ClienteUsuariosInvalidException {
 
     if (esMailRepetido(cliente.getCorreoElectronico())) {
       throw new ClienteMailDuplicadoException(cliente.getCorreoElectronico());
+    }
+
+    if (!areUsuariosValid(cliente.getUsuarios())) {
+      throw new ClienteUsuariosInvalidException(cliente.getUsuarios());
     }
 
     return clienteRepo.save(cliente);
@@ -57,7 +68,7 @@ public class ClienteServiceImpl implements ClienteService{
 
   @Override
   public Cliente updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
-    ClienteMailDuplicadoException {
+    ClienteMailDuplicadoException, ClienteUsuariosInvalidException {
 
     Optional<Cliente> c = clienteRepo.findById(id);
 
@@ -71,6 +82,10 @@ public class ClienteServiceImpl implements ClienteService{
 
     if (!hasSameEmail && esMailRepetido(cliente.getCorreoElectronico())) {
       throw new ClienteMailDuplicadoException(cliente.getCorreoElectronico());
+    }
+
+    if (!areUsuariosValid(cliente.getUsuarios())) {
+      throw new ClienteUsuariosInvalidException(cliente.getUsuarios());
     }
       
     clienteViejo.setCorreoElectronico(cliente.getCorreoElectronico());
@@ -96,4 +111,33 @@ public class ClienteServiceImpl implements ClienteService{
   private boolean esMailRepetido(String mail) {
     return clienteRepo.findAll().stream().filter(c -> c.getCorreoElectronico().equals(mail)).findAny().isPresent();
   }
+
+  private boolean areUsuariosValid(List<Usuario> usuarios) {
+
+    if (usuarios == null) return true;
+
+    Integer cantidadGerentes = 0;
+
+    for (Usuario u : usuarios) {
+      
+      if(u.getId() == null) continue;
+
+      Optional<Usuario> savedUsuario = usuarioRepo.findById(u.getId());
+
+      if(!savedUsuario.isPresent()) continue;
+
+      TipoUsuario tipo = savedUsuario.get().getTipoUsuario();
+
+      if(tipo == null) continue;
+      
+      if("GERENTE".equalsIgnoreCase(tipo.getTipo())) cantidadGerentes++;
+
+      if(cantidadGerentes > 1) return false;
+
+    }
+
+    return true;
+
+  }
+
 }

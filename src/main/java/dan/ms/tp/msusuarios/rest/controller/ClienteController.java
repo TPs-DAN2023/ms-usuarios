@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dan.ms.tp.msusuarios.exception.ClienteMailDuplicadoException;
 import dan.ms.tp.msusuarios.exception.ClienteNoEncontradoException;
+import dan.ms.tp.msusuarios.exception.ClienteUsuariosInvalidException;
 import dan.ms.tp.msusuarios.modelo.Cliente;
 import dan.ms.tp.msusuarios.rest.service.ClienteService;
 
@@ -58,6 +59,8 @@ public class ClienteController {
         //     return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         } catch (ClienteMailDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (ClienteUsuariosInvalidException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         }
     }
 
@@ -69,6 +72,8 @@ public class ClienteController {
         } catch (ClienteNoEncontradoException e) {
             return ResponseEntity.notFound().build();
         } catch (ClienteMailDuplicadoException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+        } catch (ClienteUsuariosInvalidException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         }
     }
