@@ -2,6 +2,7 @@ package dan.ms.tp.msusuarios.rest.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,11 +27,11 @@ public class TipoUsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TipoUsuario> getTipoUsuarioById(@PathVariable Integer id) {
+    public ResponseEntity getTipoUsuarioById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(tipoUsuarioService.getTipoUsuario(id));
         } catch (TipoUsuarioNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
         }
     }
 

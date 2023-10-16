@@ -32,12 +32,14 @@ public class ClienteController {
         return ResponseEntity.ok().body(clienteService.getAllClientes());
     }
 
+    // TODO: Preguntar a profes como hacer con el tipo de retorno de los ResponseEntitiy si hay excepción
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> getClienteById(@PathVariable Integer id) {
+    public ResponseEntity getClienteById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(clienteService.getCliente(id));
         } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
+            //return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
         }
     }
 
@@ -70,11 +72,11 @@ public class ClienteController {
             Cliente updatedClient = clienteService.updateCliente(cliente, id);
             return ResponseEntity.ok().body("El cliente "+updatedClient.getId()+" se actualizó exitosamente.");
         } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
         } catch (ClienteMailDuplicadoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
         } catch (ClienteUsuariosInvalidException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
         }
     }
 

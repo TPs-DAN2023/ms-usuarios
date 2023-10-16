@@ -36,11 +36,11 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getUsuario(@PathVariable Integer id) {
+    public ResponseEntity getUsuario(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(usuarioService.getUsuario(id));
         } catch (UsuarioNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
         }
     }
 
@@ -101,13 +101,13 @@ public class UsuarioController {
             Usuario updatedUsuario = usuarioService.updateUsuario(usuario, id);
             return ResponseEntity.ok().body("El usuario "+updatedUsuario.getId()+" se actualizó exitosamente.");
         } catch (UsuarioUsernameDuplicadoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
         } catch (UsuarioNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
         } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage()); // TODO: Ver código
         } catch (UsuarioPasswordInvalidException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
         }
     }
 
