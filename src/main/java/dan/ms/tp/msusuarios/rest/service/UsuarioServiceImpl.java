@@ -67,7 +67,7 @@ public class UsuarioServiceImpl implements UsuarioService{
       throw new UsuarioPasswordInvalidException(usuario.getPassword());
     }
 
-    return usuarioRepo.save(usuario);  // TODO: Validar password
+    return usuarioRepo.save(usuario);
   }
 
   @Override
@@ -94,7 +94,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     }
 
     u.setCorreoElectronico(usuario.getCorreoElectronico());
-    u.setPassword(usuario.getPassword()); // TODO: Validar password
+    u.setPassword(usuario.getPassword());
     u.setTipoUsuario(usuario.getTipoUsuario());
     u.setUserName(usuario.getUserName());
 
