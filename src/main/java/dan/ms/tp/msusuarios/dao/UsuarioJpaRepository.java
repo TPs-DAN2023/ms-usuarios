@@ -11,4 +11,6 @@ public interface UsuarioJpaRepository extends JpaRepository<Usuario,Integer>{
     // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation
     // public Usuario findUsuarioByIdCliente(Integer idCliente);
     // public List<Usuario> findDistinctUsuarioByTipoUsuarioOrderByUserNameDesc(String tipoUsuario);
+
+    public Usuario findByUserName(String userName);
 }

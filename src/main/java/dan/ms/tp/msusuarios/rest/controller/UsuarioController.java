@@ -89,9 +89,9 @@ public class UsuarioController {
         } catch (UsuarioUsernameDuplicadoException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
         } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build(); // TODO: Ver código
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).build(); // TODO: Ver código
         } catch (UsuarioPasswordInvalidException e) {
-             return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+             return ResponseEntity.status(HttpStatusCode.valueOf(400)).build();
         }
     }
 
