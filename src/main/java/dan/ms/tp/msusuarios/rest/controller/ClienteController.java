@@ -23,70 +23,73 @@ import dan.ms.tp.msusuarios.rest.service.ClienteService;
 @RestController
 @RequestMapping("api/cliente")
 public class ClienteController {
-    
-    @Autowired
-    ClienteService clienteService;
 
-    @GetMapping
-    public ResponseEntity<List<Cliente>> getAllCliente() {
-        return ResponseEntity.ok().body(clienteService.getAllClientes());
-    }
+  @Autowired
+  ClienteService clienteService;
 
-    // TODO: Preguntar a profes como hacer con el tipo de retorno de los ResponseEntitiy si hay excepción
-    @GetMapping("/{id}")
-    public ResponseEntity getClienteById(@PathVariable Integer id) {
-        try {
-            return ResponseEntity.ok().body(clienteService.getCliente(id));
-        } catch (ClienteNoEncontradoException e) {
-            //return ResponseEntity.notFound().build();
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
-        }
-    }
+  @GetMapping
+  public ResponseEntity<List<Cliente>> getAllCliente() {
+    return ResponseEntity.ok().body(clienteService.getAllClientes());
+  }
 
-    @GetMapping("/")
-    public ResponseEntity<Cliente> getClienteByCuit(@RequestParam(name = "cuit", required = false) String cuit) {
-        try {
-            return ResponseEntity.ok().body(clienteService.getCliente(cuit));
-        } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
-        }
+  // TODO: Preguntar a profes como hacer con el tipo de retorno de los
+  // ResponseEntitiy si hay excepción
+  @GetMapping("/{id}")
+  public ResponseEntity getClienteById(@PathVariable Integer id) {
+    try {
+      return ResponseEntity.ok().body(clienteService.getCliente(id));
+    } catch (ClienteNoEncontradoException e) {
+      // return ResponseEntity.notFound().build();
+      return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
     }
+  }
 
-    @PostMapping
-    public ResponseEntity<Cliente> postCliente(@RequestBody Cliente cliente) {
-        // YO CAMBIARIA a void /// peiretti // Yo creo que esta bueno devolverlo (? /// julito
-        try {
-            return ResponseEntity.ok().body(clienteService.createCliente(cliente));
-        // } catch (ClienteDuplicadoException e){ // Actualmente es imposible esta excepción
-        //     return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
-        } catch (ClienteMailDuplicadoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
-        } catch (ClienteUsuariosInvalidException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
-        }
+  @GetMapping("/")
+  public ResponseEntity<Cliente> getClienteByCuit(@RequestParam(required = false) String cuit) {
+    try {
+      return ResponseEntity.ok().body(clienteService.getCliente(cuit));
+    } catch (ClienteNoEncontradoException e) {
+      return ResponseEntity.notFound().build();
     }
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> putCliente(@RequestBody Cliente cliente, @PathVariable Integer id) {
-        try {
-            Cliente updatedClient = clienteService.updateCliente(cliente, id);
-            return ResponseEntity.ok().body("El cliente "+updatedClient.getId()+" se actualizó exitosamente.");
-        } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
-        } catch (ClienteMailDuplicadoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
-        } catch (ClienteUsuariosInvalidException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
-        }
+  @PostMapping
+  public ResponseEntity<Cliente> postCliente(@RequestBody Cliente cliente) {
+    // YO CAMBIARIA a void /// peiretti // Yo creo que esta bueno devolverlo (? ///
+    // julito
+    try {
+      return ResponseEntity.ok().body(clienteService.createCliente(cliente));
+      // } catch (ClienteDuplicadoException e){ // Actualmente es imposible esta
+      // excepción
+      // return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+    } catch (ClienteMailDuplicadoException e) {
+      return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
+    } catch (ClienteUsuariosInvalidException e) {
+      return ResponseEntity.status(HttpStatusCode.valueOf(409)).build();
     }
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCliente(@PathVariable Integer id) {
-        try {
-            clienteService.deleteCliente(id);
-            return ResponseEntity.noContent().build();
-        } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.notFound().build();
-        }
+  @PutMapping("/{id}")
+  public ResponseEntity<String> putCliente(@RequestBody Cliente cliente, @PathVariable Integer id) {
+    try {
+      Cliente updatedClient = clienteService.updateCliente(cliente, id);
+      return ResponseEntity.ok().body("El cliente " + updatedClient.getId() + " se actualizó exitosamente.");
+    } catch (ClienteNoEncontradoException e) {
+      return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
+    } catch (ClienteMailDuplicadoException e) {
+      return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
+    } catch (ClienteUsuariosInvalidException e) {
+      return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(e.getMessage());
     }
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteCliente(@PathVariable Integer id) {
+    try {
+      clienteService.deleteCliente(id);
+      return ResponseEntity.noContent().build();
+    } catch (ClienteNoEncontradoException e) {
+      return ResponseEntity.notFound().build();
+    }
+  }
 }

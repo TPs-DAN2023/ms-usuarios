@@ -16,7 +16,7 @@ import dan.ms.tp.msusuarios.modelo.TipoUsuario;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 
 @Service
-public class ClienteServiceImpl implements ClienteService{
+public class ClienteServiceImpl implements ClienteService {
 
   @Autowired
   ClienteJpaRepository clienteRepo;
@@ -33,7 +33,7 @@ public class ClienteServiceImpl implements ClienteService{
   public Cliente getCliente(Integer id) throws ClienteNoEncontradoException {
     Optional<Cliente> c = clienteRepo.findById(id);
 
-    if(!c.isPresent()){
+    if (c.isEmpty()) {
       throw new ClienteNoEncontradoException(id);
     }
 
@@ -68,17 +68,18 @@ public class ClienteServiceImpl implements ClienteService{
 
   @Override
   public Cliente updateCliente(Cliente cliente, Integer id) throws ClienteNoEncontradoException,
-    ClienteMailDuplicadoException, ClienteUsuariosInvalidException {
+      ClienteMailDuplicadoException, ClienteUsuariosInvalidException {
 
     Optional<Cliente> c = clienteRepo.findById(id);
 
-    if (!c.isPresent()) {
+    if (c.isEmpty()) {
       throw new ClienteNoEncontradoException(id);
     }
 
     Cliente clienteViejo = c.get();
 
-    Boolean hasSameEmail = (cliente.getCorreoElectronico() != null && cliente.getCorreoElectronico().equals(clienteViejo.getCorreoElectronico()));
+    Boolean hasSameEmail = (cliente.getCorreoElectronico() != null
+        && cliente.getCorreoElectronico().equals(clienteViejo.getCorreoElectronico()));
 
     if (!hasSameEmail && esMailRepetido(cliente.getCorreoElectronico())) {
       throw new ClienteMailDuplicadoException(cliente.getCorreoElectronico());
@@ -87,7 +88,7 @@ public class ClienteServiceImpl implements ClienteService{
     if (!areUsuariosValid(cliente.getUsuarios())) {
       throw new ClienteUsuariosInvalidException(cliente.getUsuarios());
     }
-      
+
     clienteViejo.setCorreoElectronico(cliente.getCorreoElectronico());
     clienteViejo.setHabilitadoOnline(cliente.getHabilitadoOnline());
     clienteViejo.setMaximoCuentaCorriente(cliente.getMaximoCuentaCorriente());
@@ -100,39 +101,46 @@ public class ClienteServiceImpl implements ClienteService{
 
   @Override
   public void deleteCliente(Integer id) throws ClienteNoEncontradoException {
-    if(!clienteRepo.existsById(id)) {
+    if (!clienteRepo.existsById(id)) {
       throw new ClienteNoEncontradoException(id);
     }
 
     clienteRepo.deleteById(id);
   }
 
-  // Filtra entre todos los clientes alguno que tenga mismo mail que el pasado por parámetro
+  // Filtra entre todos los clientes alguno que tenga mismo mail que el pasado por
+  // parámetro
   private boolean esMailRepetido(String mail) {
     return clienteRepo.findAll().stream().filter(c -> c.getCorreoElectronico().equals(mail)).findAny().isPresent();
   }
 
   private boolean areUsuariosValid(List<Usuario> usuarios) {
 
-    if (usuarios == null) return true;
+    if (usuarios == null)
+      return true;
 
     Integer cantidadGerentes = 0;
 
     for (Usuario u : usuarios) {
-      
-      if(u.getId() == null) continue;
+
+      if (u.getId() == null)
+        continue;
 
       Optional<Usuario> savedUsuario = usuarioRepo.findById(u.getId());
 
-      if(!savedUsuario.isPresent()) continue;
+      if (savedUsuario.isEmpty())
+        continue;
 
       TipoUsuario tipo = savedUsuario.get().getTipoUsuario();
 
-      if(tipo == null) continue;
-      
-      if("GERENTE".equalsIgnoreCase(tipo.getTipo())) cantidadGerentes++;
+      if (tipo == null)
+        continue;
 
-      if(cantidadGerentes > 1) return false;
+      if ("GERENTE".equalsIgnoreCase(tipo.getTipo()))
+        cantidadGerentes++;
+
+      if (cantidadGerentes > 1)
+        return false;
 
     }
 

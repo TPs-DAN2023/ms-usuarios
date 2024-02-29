@@ -11,7 +11,7 @@ import dan.ms.tp.msusuarios.exception.TipoUsuarioNoEncontradoException;
 import dan.ms.tp.msusuarios.modelo.TipoUsuario;
 
 @Service
-public class TipoUsuarioImpl implements TipoUsuarioService{
+public class TipoUsuarioImpl implements TipoUsuarioService {
 
   @Autowired
   TipoUsuarioJpaRepository tipoUsuarioRepo;
@@ -25,11 +25,11 @@ public class TipoUsuarioImpl implements TipoUsuarioService{
   public TipoUsuario getTipoUsuario(Integer id) throws TipoUsuarioNoEncontradoException {
     Optional<TipoUsuario> t = tipoUsuarioRepo.findById(id);
 
-    if (!t.isPresent()) {
+    if (t.isEmpty()) {
       throw new TipoUsuarioNoEncontradoException(id);
     }
 
     return t.get();
   }
-  
+
 }
