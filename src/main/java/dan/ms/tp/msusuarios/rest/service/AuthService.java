@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
+import dan.ms.tp.msusuarios.dao.ClienteJpaRepository;
 import dan.ms.tp.msusuarios.dao.UsuarioJpaRepository;
+import dan.ms.tp.msusuarios.modelo.Cliente;
 import dan.ms.tp.msusuarios.modelo.Usuario;
 import dan.ms.tp.msusuarios.rest.UsuarioWithToken;
 
@@ -21,6 +23,9 @@ public class AuthService {
 
     @Autowired
     private UsuarioJpaRepository usuarioRepo;
+
+    @Autowired
+    private ClienteJpaRepository clienteRepo;
 
     public String generateToken(String user) {
         
@@ -56,8 +61,13 @@ public class AuthService {
         Usuario user = usuarioRepo.findByUserName(userName);
         if (user == null || !user.getPassword().equals(pass))
             throw new RuntimeException("Invalid credentials");
-            
+
+        // Fetch the Cliente associated with the Usuario
+        Cliente cliente = clienteRepo.findClienteByUsuarioId(user.getId())
+          .orElseThrow(() -> new RuntimeException("No Cliente associated with Usuario"));
+
         UsuarioWithToken userWithToken = new UsuarioWithToken(user);
+        userWithToken.setCliente(cliente);
         userWithToken.setToken(generateToken(user.getUserName()));
         return userWithToken;
     }

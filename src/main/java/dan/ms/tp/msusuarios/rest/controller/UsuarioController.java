@@ -36,11 +36,11 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getUsuario(@PathVariable Integer id) {
+    public ResponseEntity<Usuario> getUsuario(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(usuarioService.getUsuario(id));
         } catch (UsuarioNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 

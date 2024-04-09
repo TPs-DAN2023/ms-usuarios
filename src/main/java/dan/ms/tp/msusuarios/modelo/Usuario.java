@@ -1,5 +1,7 @@
 package dan.ms.tp.msusuarios.modelo;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,18 +17,21 @@ import lombok.Data;
 @Table(name = "USR_USUARIOS")
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @Column(name = "USER_NAME")
-    private String userName;
-    private String password;
-    @Column(name = "CORREO_ELECTRONICO")
-    private String correoElectronico;
-    @ManyToOne
-    @JoinColumn(name = "ID_TIPO_USUARIO")
-    private TipoUsuario tipoUsuario;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+  @Column(name = "USER_NAME")
+  private String userName;
+  private String password;
+  @Column(name = "CORREO_ELECTRONICO")
+  private String correoElectronico;
+  @ManyToOne
+  @JoinColumn(name = "ID_TIPO_USUARIO")
+  private TipoUsuario tipoUsuario;
 
-    
-    
+  @ManyToOne
+  @JoinColumn(name = "ID_CLIENTE")
+  @JsonBackReference
+  private Cliente cliente;
+
 }
