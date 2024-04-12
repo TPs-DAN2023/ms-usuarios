@@ -29,20 +29,16 @@ public class UsuarioControllerTest {
 
   @Test
   public void getAllUsuarioTest() throws Exception {
-    // Arrange
     Usuario user1 = new Usuario();
     user1.setId(1);
     user1.setUserName("user1");
-    // ... set other properties
 
     Usuario user2 = new Usuario();
     user2.setId(2);
     user2.setUserName("user2");
-    // ... set other properties
 
     when(usuarioService.getAllUsuarios()).thenReturn(Arrays.asList(user1, user2));
 
-    // Act and Assert
     mockMvc.perform(MockMvcRequestBuilders.get("/api/usuario")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
